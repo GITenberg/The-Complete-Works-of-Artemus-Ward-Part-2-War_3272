@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: ktxMmn4C0vH8F14Vpojh49hzxXDtSWmTgMLmO+ZIkb+8LmHnRrHHsD0XZwXsD7yjPm/vw81gUXg8QI5fQ9eXoiMGZ8FY+8HDPd387whujL97yfNxJ3HmPgUlaDPCfYDTuwsMH3G6UVNeQcMSXGt83PGz0TbI7fxMWEinCQzZGaW90oRJ0sOwlOmZtWFSGmS9Y7SNv+ajbdajV0G4EAg3ZAsdCODavgg2ArJyMCozw0UWFx9sG8yUJ0kjKLISdgBjzRUtgLA3dW2LikDtyY5HbXhppZn6fVJnf6m8YqUo/thSxZDHk+ht6/b0eVTPQeuwGQSVuPygrUJsIrtr6/7UNcxaqVCd35TiVLSS7Cjb9AOE3AWXke7+sCCyM55Zx1Sxp8KpKFZSm3y7SFHnDosi/hQ1udWy1gDhCLFW961WHLW0RPolg73ZcaYW12F7i7cwanIHLkcWapYgSVJ9zp3rRwKxOitg8kN7JofLjc1JPW4Srfu4skd/BADri9Jhvvoy+HsyQrY4L1SzK30K8k9+g+nxSMMWdO9xC92CgFHc8pui8k1MhkLFziVp9AT8RbUh0rJv2D2WOqkLcuMMVfSEGa1s9ekYP/zmStjfoojpVwoujmf9cVGgNoEpo4fsFW/ZUZBffkOagrv1LoswlqA2OhzfywBIch9h6yolqh7JCpI=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Complete-Works-of-Artemus-Ward-Part-2-War_3272
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
